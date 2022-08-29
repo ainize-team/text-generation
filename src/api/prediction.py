@@ -3,7 +3,6 @@ import asyncio
 import torch
 from aiocache import Cache
 from fastapi import APIRouter, HTTPException, Request
-from loguru import logger
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from config import app_settings
@@ -23,7 +22,6 @@ async def post_generation(request: Request, data: TextGenerationRequest):
     cache: Cache = request.app.state.cache
     for _ in range(app_settings.app_max_retry):
         count = await cache.get("count", default=0)
-        logger.info(f"Test {count}")
         if count < app_settings.app_max_queue_size:
             break
         await asyncio.sleep(1)
