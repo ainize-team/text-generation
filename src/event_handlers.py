@@ -18,7 +18,13 @@ def _set_device(app: FastAPI) -> None:
 def _load_tokenizer(app: FastAPI) -> None:
     logger.info(f"load tokenizer from {model_settings.model_path}")
     app.state.tokenizer = AutoTokenizer.from_pretrained(
-        model_settings.model_path, use_fast=model_settings.use_fast_tokenizer
+        model_settings.model_path,
+        use_fast=model_settings.use_fast_tokenizer,
+        bos_token="</s>",
+        eos_token="</s>",
+        unk_token="<unk>",
+        pad_token="<pad>",
+        mask_token="<mask>",
     )
 
 
@@ -27,9 +33,7 @@ def _load_model(app: FastAPI) -> None:
     device: torch.device = app.state.device
     if device.type == "cuda":
         app.state.model = (
-            AutoModelForCausalLM.from_pretrained(
-                model_settings.model_path, low_cpu_mem_usage=True, torch_dtype=torch.float16
-            )
+            AutoModelForCausalLM.from_pretrained(model_settings.model_path, torch_dtype=torch.float16)
             .to(device)
             .eval()
         )

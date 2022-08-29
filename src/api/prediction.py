@@ -25,6 +25,7 @@ async def post_generation(request: Request, data: TextGenerationRequest):
         await asyncio.sleep(1)
     else:
         raise HTTPException(505, "Server is too busy")
+
     inputs = {
         "inputs": tokenizer.encode(data.text, return_tensors="pt").to(device),
         "max_new_tokens": data.max_new_tokens,
