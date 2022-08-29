@@ -7,13 +7,12 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from config import app_settings
 from schemas.request import TextGenerationRequest
-from schemas.response import TextGenerationResponse
 
 
 router = APIRouter()
 
 
-@router.post("/generate", response_model=TextGenerationResponse)
+@router.post("/generate", response_model=str)
 async def post_generation(request: Request, data: TextGenerationRequest):
     tokenizer: AutoTokenizer = request.app.state.tokenizer
     model: AutoModelForCausalLM = request.app.state.model
@@ -30,7 +29,6 @@ async def post_generation(request: Request, data: TextGenerationRequest):
     inputs = {
         "inputs": tokenizer.encode(data.text, return_tensors="pt").to(device),
         "repetition_penalty": generation_paramters.repetition_penalty,
-        "num_return_sequences": generation_paramters.num_return_sequences,
     }
     try:
         await cache.increment("count", 1)
@@ -42,5 +40,5 @@ async def post_generation(request: Request, data: TextGenerationRequest):
     finally:
         await cache.increment("count", -1)
         del inputs
-    result = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-    return TextGenerationResponse(result=result)
+    result = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    return result
