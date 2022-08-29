@@ -26,11 +26,17 @@ def _load_model(app: FastAPI) -> None:
     logger.info(f"load model from {model_settings.model_path}")
     device: torch.device = app.state.device
     if device.type == "cuda":
-        app.state.model = AutoModelForCausalLM.from_pretrained(
-            model_settings.model_path, low_cpu_mem_usage=True, torch_dtype=torch.float16
-        ).to(device)
+        app.state.model = (
+            AutoModelForCausalLM.from_pretrained(
+                model_settings.model_path, low_cpu_mem_usage=True, torch_dtype=torch.float16
+            )
+            .to(device)
+            .eval()
+        )
     else:
-        app.state.model = AutoModelForCausalLM.from_pretrained(model_settings.model_path, low_cpu_mem_usage=True)
+        app.state.model = AutoModelForCausalLM.from_pretrained(
+            model_settings.model_path, low_cpu_mem_usage=True
+        ).eval()
 
 
 def _set_queue(app: FastAPI) -> None:
