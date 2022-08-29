@@ -17,7 +17,6 @@ async def post_generation(request: Request, data: TextGenerationRequest):
     tokenizer: AutoTokenizer = request.app.state.tokenizer
     model: AutoModelForCausalLM = request.app.state.model
     device: torch.device = request.app.state.device
-    generation_paramters = data.generation_paramters
     cache: Cache = request.app.state.cache
     for _ in range(app_settings.app_max_retry):
         count = await cache.get("count", default=0)
@@ -28,7 +27,8 @@ async def post_generation(request: Request, data: TextGenerationRequest):
         raise HTTPException(505, "Server is too busy")
     inputs = {
         "inputs": tokenizer.encode(data.text, return_tensors="pt").to(device),
-        "repetition_penalty": generation_paramters.repetition_penalty,
+        "max_new_tokens": data.max_new_tokens,
+        "repetition_penalty": data.repetition_penalty,
     }
     try:
         await cache.increment("count", 1)
