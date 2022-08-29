@@ -29,14 +29,7 @@ async def post_generation(request: Request, data: TextGenerationRequest):
         raise HTTPException(505, "Server is too busy")
     inputs = {
         "inputs": tokenizer.encode(data.text, return_tensors="pt").to(device),
-        "max_new_tokens": generation_paramters.max_new_tokens,
-        "do_sample": generation_paramters.do_sample,
-        "early_stopping": generation_paramters.early_stopping,
-        "num_beams": generation_paramters.num_beams,
-        "temperature": generation_paramters.temperature,
-        "top_k": generation_paramters.top_k,
-        "top_p": generation_paramters.top_p,
-        "no_repeat_ngram_size": generation_paramters.no_repeat_ngram_size,
+        "repetition_penalty": generation_paramters.repetition_penalty,
         "num_return_sequences": generation_paramters.num_return_sequences,
     }
     try:
