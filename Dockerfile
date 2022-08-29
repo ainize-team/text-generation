@@ -6,9 +6,14 @@ ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive
 
 
+# Install Redis
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y redis-server
+    
 WORKDIR /app
 COPY ./requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
+
 
 COPY ./src/ /app/
 
